@@ -94,6 +94,78 @@ dtb-$(CONFIG_ARCH_LAHAINA) += lahaina-rumi.dtb \
 endif
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+dtbo-$(CONFIG_ARCH_LITO) += lito-rumi-overlay.dtbo \
+                lito-mtp-overlay.dtbo \
+                lito-v2-mtp-overlay.dtbo \
+                lito-cdp-overlay.dtbo \
+                lito-v2-cdp-overlay.dtbo \
+                lito-atp-overlay.dtbo \
+                lito-v2-atp-overlay.dtbo \
+                lito-v2-atp-lcd-overlay.dtbo \
+                lito-qrd-overlay.dtbo \
+                lito-v2-qrd-overlay.dtbo \
+                litomagnus-mtp-overlay.dtbo \
+                litomagnus-cdp-overlay.dtbo \
+                orchid-mtp-overlay.dtbo \
+                orchid-cdp-overlay.dtbo
+
+lito-rumi-overlay.dtbo-base := lito.dtb lito-v2.dtb
+lito-mtp-overlay.dtbo-base := lito.dtb
+lito-v2-mtp-overlay.dtbo-base := lito-v2.dtb
+lito-cdp-overlay.dtbo-base := lito.dtb
+lito-v2-cdp-overlay.dtbo-base := lito-v2.dtb
+lito-atp-overlay.dtbo-base := lito.dtb
+lito-v2-atp-overlay.dtbo-base := lito-v2.dtb
+lito-v2-atp-lcd-overlay.dtbo-base := lito-v2.dtb
+lito-qrd-overlay.dtbo-base := lito.dtb
+lito-v2-qrd-overlay.dtbo-base := lito-v2.dtb
+litomagnus-mtp-overlay.dtbo-base := litomagnus.dtb
+litomagnus-cdp-overlay.dtbo-base := litomagnus.dtb
+orchid-mtp-overlay.dtbo-base := orchid.dtb
+orchid-cdp-overlay.dtbo-base := orchid.dtb
+else
+dtb-$(CONFIG_ARCH_LITO) += lito-rumi.dtb \
+                lito-mtp.dtb \
+                lito-cdp.dtb \
+                lito-atp.dtb \
+                lito-qrd.dtb \
+                lito-v2-mtp.dtb \
+                lito-v2-cdp.dtb \
+                lito-v2-atp.dtb \
+                lito-v2-atp-lcd.dtb \
+                lito-v2-qrd.dtb \
+                litomagnus-mtp.dtb \
+                litomagnus-cdp.dtb \
+                orchid-mtp.dtb \
+                orchid-cdp.dtb
+endif
+
+ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+dtbo-$(CONFIG_ARCH_LAGOON) += \
+		lagoon-rumi-overlay.dtbo \
+		lagoon-mtp-overlay.dtbo \
+		lagoon-mtp-usbc-overlay.dtbo \
+		lagoon-cdp-overlay.dtbo \
+		lagoon-atp-overlay.dtbo \
+		lagoon-qrd-overlay.dtbo
+
+lagoon-rumi-overlay.dtbo-base := lagoon.dtb
+lagoon-mtp-overlay.dtbo-base := lagoon.dtb
+lagoon-mtp-usbc-overlay.dtbo-base := lagoon.dtb
+lagoon-cdp-overlay.dtbo-base := lagoon.dtb
+lagoon-atp-overlay.dtbo-base := lagoon.dtb
+lagoon-qrd-overlay.dtbo-base := lagoon.dtb
+else
+dtb-$(CONFIG_ARCH_LAGOON) += \
+		lagoon-rumi.dtb \
+		lagoon-mtp.dtb \
+		lagoon-mtp-usbc.dtb \
+		lagoon-cdp.dtb \
+		lagoon-atp.dtb \
+		lagoon-qrd.dtb
+endif
+
+ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 dtbo-$(CONFIG_ARCH_HOLI) += holi-rumi-overlay.dtbo \
 	holi-mtp-overlay.dtbo \
 	holi-cdp-overlay.dtbo \
