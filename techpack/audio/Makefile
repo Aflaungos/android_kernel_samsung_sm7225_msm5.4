@@ -18,6 +18,14 @@ endif
 ifeq ($(CONFIG_ARCH_KONA), y)
 include $(srctree)/techpack/audio/config/konaauto.conf
 endif
+ifeq ($(CONFIG_ARCH_LITO), y)
+ifeq ($(CONFIG_SEC_M23XQ_PROJECT), y)
+include $(srctree)/techpack/audio/config/lito_m23.conf
+else
+include $(srctree)/techpack/audio/config/litoauto.conf
+endif
+export
+endif
 ifeq ($(CONFIG_ARCH_LAHAINA), y)
 ifeq ($(CONFIG_SEC_A52SXQ_PROJECT), y)
 include $(srctree)/techpack/audio/config/lahaina_a52s.conf
@@ -79,6 +87,15 @@ endif
 ifeq ($(CONFIG_ARCH_KONA), y)
 LINUXINCLUDE    += \
                 -include $(srctree)/techpack/audio/config/konaautoconf.h
+endif
+ifeq ($(CONFIG_ARCH_LITO), y)
+ifeq ($(CONFIG_SEC_M23XQ_PROJECT), y)
+LINUXINCLUDE    += \
+                -include $(srctree)/techpack/audio/config/lito_m23.h
+else
+LINUXINCLUDE    += \
+                -include $(srctree)/techpack/audio/config/litoautoconf.h
+endif
 endif
 ifeq ($(CONFIG_ARCH_LAHAINA), y)
 ifeq ($(CONFIG_SEC_A52SXQ_PROJECT), y)

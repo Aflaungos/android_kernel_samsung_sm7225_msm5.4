@@ -291,7 +291,7 @@ config BACKLIGHT_PM8941_WLED
 
 config BACKLIGHT_QCOM_SPMI_WLED
 	tristate "Qualcomm Technologies, Inc. WLED Driver"
-	select REGMAP
+	depends on REGMAP
 	help
 	  If you have the Qualcomm Technologies, Inc. WLED used for backlight
 	  control, say Y to enable a driver for the  WLED block. This driver

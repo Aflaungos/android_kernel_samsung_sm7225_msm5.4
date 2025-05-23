@@ -6787,6 +6787,9 @@ static void walt_find_best_target(struct sched_domain *sd, cpumask_t *cpus,
 	unsigned int target_nr_rtg_high_prio = UINT_MAX;
 	bool rtg_high_prio_task = task_rtg_high_prio(p);
 	cpumask_t visit_cpus;
+#ifdef CONFIG_SCHED_SEC_TASK_BOOST
+	int prio_ret = is_low_priority_task(p);
+#endif
 
 	/* Find start CPU based on boost value */
 	start_cpu = fbt_env->start_cpu;
@@ -6852,6 +6855,18 @@ static void walt_find_best_target(struct sched_domain *sd, cpumask_t *cpus,
 
 			if (fbt_env->skip_cpu == i)
 				continue;
+
+#ifdef CONFIG_SCHED_SEC_TASK_BOOST
+			/*
+			 * in case of schedboost usecase
+			 * low priority tasks
+			 * are not allowed to migrate prime cluster
+			 */
+			if (!is_min_capacity_cpu(i) &&
+					(prio_ret == LOW_PRIO_NICE) &&
+					sysctl_sched_boost > 0)
+				continue;
+#endif /* CONFIG_SCHED_SEC_TASK_BOOST */
 
 			/*
 			 * p's blocked utilization is still accounted for on prev_cpu
@@ -7543,6 +7558,15 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 
 	trace_android_rvh_select_task_rq_fair(p, prev_cpu, sd_flag,
 			wake_flags, &target_cpu);
+
+#ifdef CONFIG_SCHED_SEC_TASK_BOOST
+	struct root_domain *rd = cpu_rq(cpu)->rd;
+	int prio_ret = is_low_priority_task(p);
+
+	if (prio_ret == LOW_PRIO_NICE && rd->min_cap_orig_cpu != -1)
+		return rd->min_cap_orig_cpu;
+#endif
+
 	if (target_cpu >= 0)
 		return target_cpu;
 
@@ -7789,6 +7813,10 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
 	struct cfs_rq *cfs_rq = task_cfs_rq(curr);
 	int scale = cfs_rq->nr_running >= sched_nr_latency;
 	int next_buddy_marked = 0;
+#ifdef CONFIG_SCHED_SEC_TASK_BOOST
+	int curr_cpu = cpu_of(rq);
+	struct root_domain *rd = cpu_rq(smp_processor_id())->rd;
+#endif
 
 	if (unlikely(se == pse))
 		return;
@@ -7806,6 +7834,12 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
 		set_next_buddy(pse);
 		next_buddy_marked = 1;
 	}
+
+#ifdef CONFIG_SCHED_SEC_TASK_BOOST
+	/* In case of 'current' task is in boost, don't preempt */
+	if (per_task_boost(curr) > 0)
+		return;
+#endif
 
 	/*
 	 * We can come here with TIF_NEED_RESCHED already set from new task
@@ -7835,6 +7869,18 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
 	find_matching_se(&se, &pse);
 	update_curr(cfs_rq_of(se));
 	BUG_ON(!pse);
+
+#ifdef CONFIG_SCHED_SEC_TASK_BOOST
+	/*
+	 * If task 'p' is in boost, preempt 'current' task
+	 * when current is scheduled in max_cap cpu
+	 */
+	if (rd->max_cap_orig_cpu != -1
+				&& (capacity_curr_of(rd->max_cap_orig_cpu) == capacity_curr_of(curr_cpu))
+				&& (per_task_boost(p) > 0))
+		goto preempt;
+#endif
+
 	if (wakeup_preempt_entity(se, pse) == 1) {
 		/*
 		 * Bias pick_next to pick the sched entity that is
@@ -8354,7 +8400,10 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
 {
 	int tsk_cache_hot;
 	int can_migrate = 1;
-
+#ifdef CONFIG_SCHED_SEC_TASK_BOOST
+	struct root_domain *rd = cpu_rq(smp_processor_id())->rd;
+	int prio_ret = is_low_priority_task(p);
+#endif
 	lockdep_assert_held(&env->src_rq->lock);
 
 	trace_android_rvh_can_migrate_task(p, env->dst_cpu, &can_migrate);
@@ -8381,6 +8430,19 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
 	if (p->wts.iowaited && is_min_capacity_cpu(env->dst_cpu) &&
 			!is_min_capacity_cpu(env->src_cpu))
 		return 0;
+
+#ifdef CONFIG_SCHED_SEC_TASK_BOOST
+	/*
+	 * Don't detach low priority task from mid/little cluster to prime cluster
+	 * in schedboost use-cases.
+	 */
+	if (rd->max_cap_orig_cpu != -1
+				&& (capacity_curr_of(rd->max_cap_orig_cpu) == capacity_curr_of(env->dst_cpu))
+				&& (prio_ret == LOW_PRIO_NICE)
+				&& sysctl_sched_boost > 0){
+		return 0;
+	}
+#endif /* CONFIG_SCHED_SEC_TASK_BOOST */
 #endif
 
 	/* Disregard pcpu kthreads; they are where they need to be. */

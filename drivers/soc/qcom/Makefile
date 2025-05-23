@@ -45,6 +45,7 @@ obj-$(CONFIG_QCOM_RUN_QUEUE_STATS) += rq_stats.o
 obj-$(CONFIG_QCOM_APR) += apr.o
 obj-$(CONFIG_QCOM_LLCC) += qcom_llcc.o
 qcom_llcc-y += llcc-slice.o llcc-tcm.o
+obj-$(CONFIG_QCOM_LAGOON_LLCC) += llcc-lagoon.o
 obj-$(CONFIG_QCOM_LAHAINA_LLCC) += llcc-lahaina.o
 obj-$(CONFIG_QCOM_SDXLEMUR_LLCC) += llcc-sdxlemur.o
 obj-$(CONFIG_QCOM_SHIMA_LLCC) += llcc-shima.o

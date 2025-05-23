@@ -168,6 +168,15 @@ config QCOM_LLCC
 	  to clients that use the LLCC. Say yes here to enable LLCC slice
 	  driver.
 
+config QCOM_LAGOON_LLCC
+	tristate "Qualcomm Technologies, Inc. LAGOON LLCC driver"
+	depends on QCOM_LLCC
+	help
+	  Qualcomm Technologies, Inc. platform specific LLCC driver for LAGOON.
+	  Say yes here to enable the LLCC driver for LAGOON. This provides
+	  data required to configure LLCC so that clients can start using the
+	  LLCC slices.
+
 config QCOM_LAHAINA_LLCC
 	tristate "Qualcomm Technologies, Inc. LAHAINA LLCC driver"
 	depends on QCOM_LLCC
